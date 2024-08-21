@@ -9,7 +9,6 @@ import collections
 
 import idc
 import idautils
-import ida_struct
 import idaapi
 
 from . import ida_utilities as idau
@@ -45,7 +44,7 @@ def create_struct_fields(sid=None, name=None, accesses=None, create=False, base=
             _log(0, 'Could not open struct {}', name)
             return False
     else:
-        name = ida_struct.get_struc_name(sid)
+        name = idc.get_struc_name(sid)
         if name is None:
             _log(0, 'Invalid struct id {}', sid)
             return False

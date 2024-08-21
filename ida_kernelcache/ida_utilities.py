@@ -9,8 +9,7 @@ from collections import deque
 
 import idc
 import idautils
-import idaapi
-import ida_struct
+import idaapi 
 import ida_bytes
 import ida_funcs
 import ida_name
@@ -387,7 +386,7 @@ def _read_struct_member(struct, sid, union, ea, offset, name, size, asobject):
     member_sid, member_ssize = None, None
     if ida_bytes.is_struct(flags):
         member_sid = idc.get_member_strid(sid, offset)
-        member_ssize = ida_struct.get_struc_size(member_sid)
+        member_ssize = idc.get_struc_size(member_sid)
     # Get the address of the start of the member.
     member = ea
     if not union:
@@ -427,7 +426,7 @@ def read_struct(ea, struct=None, sid=None, members=None, asobject=False):
     """
     # Handle sid/struct.
     if struct is not None:
-        sid2 = ida_struct.get_struc_id(struct)
+        sid2 = idc.get_struc_id(struct)
         if sid2 == idc.BADADDR:
             raise ValueError('Invalid struc name {}'.format(struct))
         if sid is not None and sid2 != sid:
@@ -436,7 +435,7 @@ def read_struct(ea, struct=None, sid=None, members=None, asobject=False):
     else:
         if sid is None:
             raise ValueError('Invalid arguments: sid={}, struct={}'.format(sid, struct))
-        if ida_struct.get_struc_name(sid) is None:
+        if idc.get_struc_name(sid) is None:
             raise ValueError('Invalid struc id {}'.format(sid))
     # Iterate through the members and add them to the struct.
     union = idc.is_union(sid)
@@ -446,7 +445,7 @@ def read_struct(ea, struct=None, sid=None, members=None, asobject=False):
             continue
         _read_struct_member(struct, sid, union, ea, offset, name, size, asobject)
     if asobject:
-        struct = objectview(struct, ea, ida_struct.get_struc_size(sid))
+        struct = objectview(struct, ea, idc.get_struc_size(sid))
     return struct
 
 def null_terminated(string):
@@ -576,7 +575,7 @@ def struct_create(name, union=False):
 
 def struct_open(name, create=False, union=None):
     """Get the SID of the IDA struct with the given name, optionally creating it."""
-    sid = ida_struct.get_struc_id(name)
+    sid = idc.get_struc_id(name)
     if sid == idc.BADADDR:
         if not create:
             return None
@@ -624,6 +623,6 @@ def struct_add_struct(sid, name, offset, msid, count=1):
 
     If sid is a union, offset must be -1.
     """
-    size = ida_struct.get_struc_size(msid)
+    size = idc.get_struc_size(msid)
     return idc.add_struc_member(sid, name, offset, idc.FF_DATA | ida_bytes.FF_STRUCT, msid, size * count)
 
